@@ -1,0 +1,102 @@
+% Arch 4A --- Private angular centers + SB-LN (M15a)
+% Compile: tectonic arch4a_angular_centers.tex
+\documentclass[11pt]{article}
+\usepackage[a4paper,landscape,margin=14mm]{geometry}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{array,booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\definecolor{box}{HTML}{EEF2F7}
+\definecolor{trn}{HTML}{FCE9C8}
+\definecolor{frz}{HTML}{DCE6F2}
+\definecolor{prv}{HTML}{E3F1DF}
+\definecolor{nov}{HTML}{F8E6EF}
+
+\tikzset{
+  blk/.style={draw,rounded corners=3pt,fill=box,align=center,font=\normalsize,minimum height=18mm,text width=46mm,line width=0.8pt},
+  frz/.style={blk,fill=frz},
+  trn/.style={blk,fill=trn},
+  prv/.style={blk,fill=prv},
+  nov/.style={blk,fill=nov},
+  lab/.style={font=\footnotesize,text=black!80,inner sep=1.5pt},
+  ar/.style={-{Latex[length=3mm]},line width=1.1pt}}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Arch 4A --- Private Angular Centers + SB-LN (M15a)}\\[2pt]
+{\small Orange = deployed trained; green = training-only private; blue = frozen. Avoids Arch~2/3 failure mode: private latent is \textbf{not} on LN values or a feature shift \(W\delta\).}
+\end{center}
+\vspace{3mm}
+
+\begin{center}
+\begin{tikzpicture}[x=72mm,y=-36mm]
+\node[blk] (vid) at (0,0) {input video\\FF++ / DFD / UADFV};
+\node[blk] (pre) at (1,0) {32 frames $\to$ MTCNN\\crop $224$, CLIP norm};
+\node[frz] (enc) at (2,0) {CLIP ViT-L/14\\weights frozen\\except LN via SB-LN};
+\node[trn] (sb) at (3,0) {\textbf{SB-LN} $r{=}16$\\$\gamma=\gamma^0+B_\gamma a$\\$\beta=\beta^0+B_\beta b$\\34{,}368 params};
+\node[blk] (z) at (0,1) {$z=\mathrm{norm}(\mathrm{CLS})$\\$\|z\|=1$};
+\node[trn] (cr) at (1,1) {shared real center\\$c_r$ (buffer / EMA)\\+ scale $s$ (1 param)};
+\node[prv] (cg) at (2,1) {\textbf{private centers}\\$c_g\in\mathbb{R}^{1024}$\\one per train gen.\\normed; train only};
+\node[nov] (hd) at (3,1) {angular logit\\$\ell=\mathrm{s}\cdot\cos(z,c_r)$\\CE on $(0,\ell)$ at deploy\\(use $c_r$ only)};
+\draw[ar] (vid)--(pre)--(enc)--(sb); \draw[ar] (sb)--(z);
+\draw[ar] (z)--(cr); \draw[ar] (cr)--(hd); \draw[ar] (cg)--(hd);
+\draw[line width=1.1pt,dashed,trn!50!black] (sb)--(enc);
+\end{tikzpicture}
+\end{center}
+
+\vspace{4mm}
+\begin{center}
+{\normalsize\bfseries Training loss (private centers linked)}
+\end{center}
+\vspace{2mm}
+\begin{center}
+\begin{tikzpicture}[x=85mm,y=-32mm]
+\node[nov,text width=70mm] (L) at (0,0)
+ {$\mathcal{L}=\mathrm{CE}\big(\mathrm{s}\cdot\cos(z,c_r),y\big)$\\
+  $+\,\alpha\,\mathbb{E}_{\mathrm{real}}[1-\cos(z,c_r)]$\\
+  $+\,\beta\,\mathbb{E}_{\mathrm{fake}}[\mathrm{relu}(\cos(z,c_r)-m)]$\\
+  $+\,\gamma\,\mathbb{E}_{\mathrm{fake}}[1-\cos(z,c_g)]$\\
+  $+\,\lambda\|c_g-c_r\|^2$};
+\node[prv,text width=55mm] (link) at (1.15,0)
+ {\textbf{Link:} $c_g$ appears in\\attraction $+\lambda$ term.\\If $c_g$ removed, those\\terms vanish.\\Deploy: discard all $c_g$.};
+\draw[ar] (link)--(L);
+\end{tikzpicture}
+\end{center}
+
+\vspace{4mm}
+\begin{center}
+\small
+\begin{tabular}{L{55mm}rrr}
+\toprule
+piece & count & deployed? \\
+\midrule
+SB-LN ($r{=}16$) & 34{,}368 & yes \\
+scale $s$ (or $b,\tau$) & 1--2 & yes \\
+private $c_g$ ($G{\times}1024$) & 4{,}096 & \textbf{no} \\
+\textbf{deployed total} & $\approx$34{,}370 & \\
+\textbf{train-time} & $\approx$38{,}466 & \\
+\bottomrule
+\end{tabular}
+\hspace{8mm}
+\begin{tabular}{L{70mm}L{70mm}}
+\toprule
+vs prior & difference \\
+\midrule
+Arch 1 GBLA & private on LN $\gamma,\beta$, linear head \\
+Arch 3 & private $\delta_g$ via $W$ shift of $\mu_f$ \\
+\textbf{Arch 4A} & private = \textbf{angular centers} in the loss \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vfill
+{\small Notebook: \texttt{M15a.ipynb}. Decision: KEEP iff NT $\ge$ A0 (81.21) and DFD $\ge95.5$. Four aims: (1) SB-LN+angular head not LN+linear; (2) angular+attraction loss; (3) $c_g$ in $\mathcal{L}$; (4) deployed $\ll104{,}450$.}
+
+\end{document}
