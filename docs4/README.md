@@ -9,11 +9,13 @@ Three **independent** designs after Arch 3 was rejected. Same four aims; differe
 | 3 | Private latent linked to that loss |
 | 4 | Reduce below 104,450 params if possible |
 
-| Candidate | Notebook | TeX diagram | Private latent lives in | Shared adapter |
-|---|---|---|---|---|
-| **A** | `M15a.ipynb` | `arch4a_angular_centers.tex` | Angular fake centers \(c_g\) | SB-LN |
-| **B** | `M15b.ipynb` | `arch4b_frozen_bottleneck.tex` | Bottleneck adapters \(U_g\) | Frozen CLIP (no LN tune) |
-| **C** | `M15c.ipynb` | `arch4c_score_space.tex` | Score-space \((m_g,\tau_g)\) | Full LayerNorms |
+| Candidate | Notebook | TeX diagram | Private latent lives in | Shared adapter | M15 decision |
+|---|---|---|---|---|---|
+| **A** | `M15a.ipynb` | `arch4a_angular_centers.tex` (+ novelty page) | Angular fake centers \(c_g\) | SB-LN | REJECT |
+| **B** | `M15b.ipynb` | `arch4b_frozen_bottleneck.tex` (+ novelty page) | Bottleneck adapters \(U_g\) | Frozen CLIP (no LN tune) | REJECT |
+| **C** | `M15c.ipynb` | `arch4c_score_space.tex` (+ novelty page) | Score-space \((m_g,\tau_g)\) | Full LayerNorms | **KEEP** |
+
+Each `.tex` ends with a **Novelty** page: claims for that pipeline only (4A/4B marked as design-only / negative; 4C includes KEEP numbers).
 
 Arch 1 (GBLA) stays the published main model until a candidate **KEEPs** its pre-registered rule.
 

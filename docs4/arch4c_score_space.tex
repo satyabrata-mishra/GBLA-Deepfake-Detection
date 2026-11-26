@@ -98,4 +98,59 @@ aim & met by \\
 \vfill
 {\small Notebook: \texttt{M15c.ipynb}. Highest chance to hold NT (full LNs) while still claiming a new head/loss/private link distinct from published GBLA. Decision: KEEP iff NT $\ge$ A0 and DFD $\ge95.5$ (same pre-registered honesty).}
 
+\newpage
+% =====================================================================
+% PAGE: Novelty we can claim for this pipeline
+% =====================================================================
+\begin{center}
+{\Large\bfseries Novelty --- Arch 4C (Score-Space Private Latent)}\\[2pt]
+{\small Claims for the \textbf{KEEP} pipeline (M15c). Seed~0: seen 96.16, NT 86.80, FSh 92.81, DFD 96.16 (NT $\ge$ A0, DFD $\ge95.5$).}
+\end{center}
+\vspace{3mm}
+
+\small
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{L{8mm}L{40mm}L{82mm}L{72mm}}
+\toprule
+\# & claim & what is new in \textbf{this} pipeline & vs closest prior (this project) \\
+\midrule
+N1 & \textbf{Prototype head on full LNs} & Real/fake centroids define $w,\bar m$; only $b,\tau$ trained. No $1024{\to}2$ linear head. & Arch~1: full LNs + linear 2{,}050 \\
+N2 & \textbf{Score-space private latent} & Per-generator $(m_g,\rho_g)$ --- margin and log-temperature in \emph{score} space ($G{\times}2=8$). & Arch~1: $\delta$ on LN $\gamma,\beta$; Arch~3: $W\delta$ on features \\
+N3 & \textbf{Private-linked loss} & Train CE uses $\tau_g{=}e^{\rho_g}$; margin term uses $m_g$; $+\lambda(m_g^2+\rho_g^2)$. Loss needs $(m_g,\rho_g)$. & GBLA $\lambda\|\delta_{\mathrm{LN}}\|^2$; Arch~3 PFAL to $c_f(\delta)$ \\
+N4 & \textbf{No GBLA LN offsets} & Full shared LayerNorms only; private structure never touches $\gamma,\beta$. & Published Arch~1 identity \\
+N5 & \textbf{Train/deploy split} & Deploy shared LNs + prototype $(b,\tau)$; discard all $(m_g,\rho_g)$. & Same deploy pattern as GBLA; new private locus \\
+N6 & \textbf{Param efficiency vs Arch~1} & Deployed 102{,}402 $<$ 104{,}450 (drops linear head). & Arch~1 104{,}450 \\
+\bottomrule
+\end{tabular}
+
+\vspace{5mm}
+\begin{center}
+\begin{tabular}{L{48mm}L{125mm}}
+\toprule
+four aims & how 4C meets them \\
+\midrule
+1. Not LN + linear alone & Full LNs + \textbf{prototype} head (not linear) \\
+2. New loss & CE/align/unif with \textbf{generator margin/temp} + $\lambda$ on $(m_g,\rho_g)$ \\
+3. Private $\leftrightarrow$ loss & $(m_g,\rho_g)$ enter CE temperature, relu margin, and penalty \\
+4. $P\lt104{,}450$ & 102{,}402 deployed \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{5mm}
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+model (seed 0) & seen & NT & FSh & DFD \\
+\midrule
+A0 SB-LN + linear & 94.54 & 81.21 & 92.25 & 95.15 \\
+Arch~1 GBLA $\lambda{=}0.01$ & 95.55 & 85.06 & 92.91 & 96.71 \\
+\textbf{Arch~4C (this pipeline)} & \textbf{96.16} & \textbf{86.80} & 92.81 & 96.16 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vfill
+{\small\textbf{Claim carefully:} 4C is a viable second architecture vs published GBLA (new head + score-space private link; slightly fewer params; stronger NT on this seed). Do \textbf{not} claim DFD SOTA vs Arch~1 (96.16 vs 96.71). Prefer a second seed / ablation before a camera-ready novelty paragraph.}
+
 \end{document}

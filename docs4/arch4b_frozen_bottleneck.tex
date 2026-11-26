@@ -101,4 +101,45 @@ four aims & how 4B meets them \\
 \vfill
 {\small Notebook: \texttt{M15b.ipynb}. Highest risk on absolute AUC (no LN tune). Decision same gate: NT $\ge81.21$, DFD $\ge95.5$. Distinct from Arch~1/2/3: private adapters in a \textbf{learned bottleneck}, not LN/feature-centroid space.}
 
+\newpage
+% =====================================================================
+% PAGE: Novelty we can claim for this pipeline
+% =====================================================================
+\begin{center}
+{\Large\bfseries Novelty --- Arch 4B (Frozen Encoder + Private Bottleneck)}\\[2pt]
+{\small Design claims for this pipeline only. Accuracy status after M15b: \textbf{REJECT} (NT $69.5$, DFD $88.6$ --- below gate).}
+\end{center}
+\vspace{4mm}
+
+\small
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{L{8mm}L{42mm}L{85mm}L{70mm}}
+\toprule
+\# & claim & what is new in \textbf{this} pipeline & vs closest prior (this project) \\
+\midrule
+N1 & \textbf{No LN tuning} & Entire CLIP ViT-L/14 frozen (incl.\ all 50 LNs); adaptation only after CLS. & Arch~1/3/4A/4C all train LNs or SB-LN \\
+N2 & \textbf{Learned bottleneck head} & Shared MLP $\phi$: $1024{\to}d{\to}d$ + $\mathrm{Linear}(d,2)$ replaces LN-tune + linear $1024{\to}2$. & Standard LNCLIP / GBLA head \\
+N3 & \textbf{Private bottleneck adapters} & $U_g\in\mathbb{R}^{d\times k}$; $h'=h+(hU_g)U_g^\top$ (train); $h'=h$ (deploy). & LN-$\delta$ / feature-$\delta$ / score $(m_g,\rho_g)$ \\
+N4 & \textbf{Adapter-linked loss} & CE/align/uniform on $h'$ + $\lambda\|U_g\|_F^2$; without $U_g$ the private path and penalty vanish. & GBLA $\lambda\|\delta\|^2$ on LN space \\
+N5 & \textbf{Parameter story} & Deployed $\approx$70k at $d{=}64$ (under 104{,}450); encoder not trained. & Arch~1 104{,}450; Arch~3 $\approx$34k with SB-LN \\
+\bottomrule
+\end{tabular}
+
+\vspace{6mm}
+\begin{center}
+\begin{tabular}{L{50mm}L{120mm}}
+\toprule
+four aims & how 4B addresses them (design) \\
+\midrule
+1. Not LN + linear alone & Frozen CLIP; new bottleneck + small head \\
+2. New loss & CE on adapted $h'$ + align/unif + $\lambda\|U_g\|_F^2$ \\
+3. Private $\leftrightarrow$ loss & $U_g$ changes $h'$ inside CE; Frobenius penalty \\
+4. $P\lt104{,}450$ & yes ($\approx$69{,}890 deployed at $d{=}64$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vfill
+{\small\textbf{What not to claim after M15b:} beating A0/Arch~1 or passing KEEP (NT/DFD gates failed). Claim 4B only as a \emph{compression / frozen-backbone} exploration that underperformed LN-tuned detectors.}
+
 \end{document}

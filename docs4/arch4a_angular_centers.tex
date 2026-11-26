@@ -99,4 +99,45 @@ Arch 3 & private $\delta_g$ via $W$ shift of $\mu_f$ \\
 \vfill
 {\small Notebook: \texttt{M15a.ipynb}. Decision: KEEP iff NT $\ge$ A0 (81.21) and DFD $\ge95.5$. Four aims: (1) SB-LN+angular head not LN+linear; (2) angular+attraction loss; (3) $c_g$ in $\mathcal{L}$; (4) deployed $\ll104{,}450$.}
 
+\newpage
+% =====================================================================
+% PAGE: Novelty we can claim for this pipeline
+% =====================================================================
+\begin{center}
+{\Large\bfseries Novelty --- Arch 4A (Private Angular Centers)}\\[2pt]
+{\small Design claims for this pipeline only. Accuracy status after M15a: \textbf{REJECT} (NT/DFD collapsed) --- do not claim empirical superiority.}
+\end{center}
+\vspace{4mm}
+
+\small
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{L{8mm}L{42mm}L{85mm}L{70mm}}
+\toprule
+\# & claim & what is new in \textbf{this} pipeline & vs closest prior (this project) \\
+\midrule
+N1 & \textbf{Angular shared head} & Deployed score is $s\cdot\cos(z,c_r)$ with one scale $s$; no $1024{\to}2$ linear head. & Arch~1 linear head (2{,}050); Arch~3 prototype midpoint head \\
+N2 & \textbf{Private angular centers} & Per-generator $c_g\in\mathbb{R}^{1024}$ on the sphere; training-only; discarded at deploy. & Arch~1/2 LN-value $\delta$; Arch~3 feature $\delta$ via $W$ \\
+N3 & \textbf{Center-linked loss} & $\gamma\,\mathbb{E}[1-\cos(z,c_g)]+\lambda\|c_g-c_r\|^2$ makes $\mathcal{L}$ depend on $c_g$ by construction. & Arch~3 PFAL to $c_f(W\delta)$; not center parameters themselves \\
+N4 & \textbf{SB-LN compression} & Shared LN path $2{\cdot}1024r+100r$ ($\approx$34k at $r{=}16$). & Arch~1 full 102{,}400 LNs \\
+N5 & \textbf{Train/deploy split} & Deploy SB-LN $+\,s\,+\,c_r$ only; private $c_g$ never used at test. & Same philosophy as GBLA; new private content \\
+\bottomrule
+\end{tabular}
+
+\vspace{6mm}
+\begin{center}
+\begin{tabular}{L{50mm}L{120mm}}
+\toprule
+four aims & how 4A addresses them (design) \\
+\midrule
+1. Not LN + linear alone & SB-LN + angular head \\
+2. New loss & CE on $s\cos$ + real-anchor + margin + attract-to-$c_g$ + $\lambda$ \\
+3. Private $\leftrightarrow$ loss & $c_g$ in attraction and penalty terms \\
+4. $P\lt104{,}450$ & deployed $\approx$34{,}369 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vfill
+{\small\textbf{What not to claim after M15a:} state-of-the-art / KEEP under the pre-registered gate (seen $\approx$43, NT $\approx$46, DFD $\approx$45). Use 4A as a \emph{negative} ablation: private angular centers under SB-LN did not yield a usable detector.}
+
 \end{document}
